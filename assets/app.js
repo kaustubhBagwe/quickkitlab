@@ -2,10 +2,89 @@
 const $=s=>document.querySelector(s);
 document.addEventListener('DOMContentLoaded',()=>{
  const mb=$('#menuBtn'),mp=$('#menuPanel');
- if(mb&&mp){mb.addEventListener('click',()=>{mp.classList.toggle('open');mb.setAttribute('aria-expanded',mp.classList.contains('open'))});document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target))mp.classList.remove('open')})}
+ if(mb&&mp){
+  mb.addEventListener('click',()=>{mp.classList.toggle('open');mb.setAttribute('aria-expanded',mp.classList.contains('open'))});
+  document.addEventListener('click',e=>{if(!mp.contains(e.target)&&!mb.contains(e.target)){mp.classList.remove('open');mb.setAttribute('aria-expanded','false')}});
+ }
  const themeToggle=$('#themeToggle');
- if(themeToggle){let theme='light';try{theme=localStorage.getItem('quickkitlab-theme')==='dark'?'dark':'light'}catch(e){console.warn('Theme preference could not be loaded.',e)}document.body.dataset.theme=theme;const updateThemeToggle=()=>{const dark=document.body.dataset.theme==='dark';themeToggle.setAttribute('aria-pressed',String(dark));themeToggle.innerHTML=`<span aria-hidden="true">${dark?'☀':'☾'}</span> ${dark?'Light mode':'Dark mode'}`};updateThemeToggle();themeToggle.addEventListener('click',()=>{const theme=document.body.dataset.theme==='dark'?'light':'dark';document.body.dataset.theme=theme;try{localStorage.setItem('quickkitlab-theme',theme)}catch(e){console.warn('Theme preference could not be saved.',e)}updateThemeToggle()})}
- const search=$('#toolSearch'); if(search){search.addEventListener('input',()=>{const q=search.value.toLowerCase();document.querySelectorAll('.tool-card').forEach(c=>c.classList.toggle('hidden',!c.innerText.toLowerCase().includes(q)))})}
+ if(themeToggle){
+  let theme='dark';
+  try{theme=localStorage.getItem('quickkitlab-theme')==='light'?'light':'dark'}catch(e){console.warn('Theme preference could not be loaded.',e)}
+  document.body.dataset.theme=theme;
+  const updateThemeToggle=()=>{const dark=document.body.dataset.theme==='dark';themeToggle.setAttribute('aria-pressed',String(dark));themeToggle.innerHTML=`<span aria-hidden="true">${dark?'☀':'☾'}</span> ${dark?'Light mode':'Dark mode'}`};
+  updateThemeToggle();
+  themeToggle.addEventListener('click',()=>{const theme=document.body.dataset.theme==='dark'?'light':'dark';document.body.dataset.theme=theme;try{localStorage.setItem('quickkitlab-theme',theme)}catch(e){console.warn('Theme preference could not be saved.',e)}updateThemeToggle()});
+ }
+ const hero=$('.hero');
+ if(hero){
+  const searchBox=hero.querySelector('.searchbox');
+  const copy=document.createElement('div');
+  copy.className='hero-copy';
+  hero.querySelectorAll('.eyebrow,h1,p').forEach(element=>copy.appendChild(element));
+  hero.replaceChildren(copy,searchBox);
+ }
+ const categories=[
+  {id:'all',label:'All tools'},
+  {id:'image-tools',label:'Images'},
+  {id:'pdf-tools',label:'PDF'},
+  {id:'text-tools',label:'Text & developer'},
+  {id:'everyday-tools',label:'Everyday'}
+ ];
+ const firstSection=$('#image-tools');
+ if(firstSection){
+  const filters=document.createElement('div');
+  filters.className='category-filters';
+  filters.setAttribute('aria-label','Filter tools by category');
+  categories.forEach(({id,label})=>{
+   const button=document.createElement('button');
+   button.type='button';
+   button.className='category-filter';
+   button.dataset.category=id;
+   button.setAttribute('aria-pressed',String(id==='all'));
+   button.textContent=label;
+   filters.appendChild(button);
+  });
+  firstSection.before(filters);
+ }
+ const toolIcons={
+  'image-compressor.html':'📉','image-resizer.html':'↔️','image-cropper.html':'✂️','heic-to-jpg.html':'🖼️',
+  'pdf-to-jpg.html':'🖼️','merge-pdf.html':'📚','split-pdf.html':'✂️','rotate-pdf.html':'🔄',
+  'word-counter.html':'🔢','json-formatter.html':'{ }','remove-duplicate-lines.html':'≡',
+  'text-case-converter.html':'Aa','qr-code-generator.html':'▦','age-calculator.html':'🎂',
+  'percentage-calculator.html':'%'
+ };
+ document.querySelectorAll('.tool-card').forEach(card=>{
+  const icon=card.querySelector('.tool-icon');
+  const name=card.getAttribute('href')?.split('/').pop();
+  if(icon&&toolIcons[name]){icon.textContent=toolIcons[name];icon.setAttribute('aria-hidden','true')}
+ });
+ const search=$('#toolSearch');
+ if(search){
+  const clear=document.createElement('button');
+  clear.type='button';
+  clear.className='search-clear hidden';
+  clear.setAttribute('aria-label','Clear search');
+  clear.textContent='×';
+  search.closest('.searchbox').appendChild(clear);
+  let activeCategory='all';
+  const filterTools=()=>{
+   const q=search.value.trim().toLowerCase();
+   document.querySelectorAll('.section').forEach(section=>{
+    const cards=section.querySelectorAll('.tool-card');
+    const categoryMatches=activeCategory==='all'||section.id===activeCategory;
+    cards.forEach(card=>card.classList.toggle('hidden',!categoryMatches||!card.innerText.toLowerCase().includes(q)));
+   });
+   document.querySelectorAll('.section').forEach(section=>{
+    const cards=section.querySelectorAll('.tool-card');
+    if(cards.length)section.classList.toggle('hidden',![...cards].some(card=>!card.classList.contains('hidden')));
+   });
+   clear.classList.toggle('hidden',!search.value);
+   document.querySelectorAll('.category-filter').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.category===activeCategory)));
+  };
+  search.addEventListener('input',filterTools);
+  clear.addEventListener('click',()=>{search.value='';activeCategory='all';filterTools();search.focus()});
+  document.querySelectorAll('.category-filter').forEach(button=>button.addEventListener('click',()=>{activeCategory=button.dataset.category;filterTools()}));
+ }
  const contact=$('#contactForm'); if(contact) contact.addEventListener('submit',e=>{e.preventDefault();const d=new FormData(contact);const subject=encodeURIComponent(d.get('subject')||'QuickKitLab enquiry');const body=encodeURIComponent(`Name: ${d.get('name')||'Not provided'}\nEmail: ${d.get('email')}\nMessage:\n${d.get('message')}`);location.href=`mailto:REPLACE-WITH-YOUR-EMAIL@example.com?subject=${subject}&body=${body}`});
  const report=$('#reportForm'); if(report) report.addEventListener('submit',e=>{e.preventDefault();const d=new FormData(report);const subject=encodeURIComponent('QuickKitLab bug report: '+d.get('tool'));const body=encodeURIComponent(`Tool: ${d.get('tool')}\nIssue: ${d.get('issue')}\nBrowser/device: ${d.get('device')||'Not provided'}\nEmail: ${d.get('email')||'Not provided'}\nDetails:\n${d.get('details')}`);location.href=`mailto:REPLACE-WITH-YOUR-EMAIL@example.com?subject=${subject}&body=${body}`});
  initTool();
