@@ -138,7 +138,27 @@ body{background:radial-gradient(ellipse at 82% 0,#eeebff 0,transparent 36%),var(
 .tool-card h3{grid-column:2;grid-row:1;margin:1px 0 3px;padding-right:10px;font-size:13px;line-height:1.3}
 .tool-card p{grid-column:2;grid-row:2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:11px;line-height:1.4;color:#596783}
 .tool-card .open-link{display:none}
-.tool-card:after{content:"\203A";position:absolute;right:9px;bottom:8px;width:24px;height:24px;display:grid;place-items:center;border:1px solid #e1e7f3;border-radius:50%;background:#fff;color:var(--accent);font-size:20px;box-shadow:0 3px 8px rgba(30,58,116,.08)}
+.tool-card:after {
+    content: "\203A";
+    position: absolute;
+    right: 9px;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    box-sizing: border-box;
+    border: 1px solid #e1e7f3;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--accent);
+    font-size: 20px;
+}}
 .tool-card[href*="pdf"] .tool-icon{background:#ffe9ed;color:#e43859}
 .tool-card[href*="image"] .tool-icon,.tool-card[href*="heic"] .tool-icon{background:#e1efff;color:#1468ec}
 .tool-card[href*="qr-code"] .tool-icon{background:#e3e9ff;color:#493cff}
